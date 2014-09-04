@@ -37,16 +37,111 @@ void assignBucketNumbers(bucket* &item)
 
 }
 
-void emptyBucket(bucket &item, int bucketNumber)
+void empty(bucket &item, int bucketNumber)
 {
 	if(bucketCheck(bucketNumber))
 	{
 		item.contentSize = 0;
+		delete [] item.contents;
+		item.contents = NULL;	
 	}
 	else
 	{
 		cout<< "Error - bucket " << bucketNumber <<" does not exist." << endl;
 	}
+}
+
+void put(bucket &item, int bucketNumber, int numContents,int* numberLine)
+{
+	if(bucketCheck(bucketNumber))
+	{
+		if(item.contentSize != 0)
+		{
+			cout << "Error - bucket " << bucketNumber <<" is not empty." << endl;
+		}
+		else
+		{
+			item.contentSize = numContents;
+			item.contents = new int[numContents - 1]; // to adjust for indexing
+
+			for(int i = 0; i < numContents; i++)
+			{
+				item.contents[i] = numberLine[i];
+			}
+		}	
+
+	}
+	else
+	{
+		cout<< "Error - bucket " << bucketNumber <<" does not exist." << endl;
+	}
+	
+}
+
+void output(bucket &item, int bucketNumber)
+{
+	if(bucketCheck(bucketNumber))
+	{
+		if(item.contentSize == 0)
+		{
+			cout << "empty" << endl;
+		}
+		else
+		{
+			for(int i = 0; i < item.contentSize; i++)
+			{
+				cout << item.contents[i] <<" ";
+			}
+			cout <<endl;
+		}
+
+	}
+	else
+	{
+		cout<< "Error - bucket " << bucketNumber <<" does not exist." << endl;
+	}
+}
+
+void runCommands(ifstream &commandFile, bucket* &item)
+{
+	string command;
+	int bucketNumber;
+	int numContents;
+	int* numberLine = NULL;
+	string inputLine;
+
+	for(int i = 0; i < numCommands; i++)
+	{
+
+		commandFile >> command >> bucketNumber;
+
+		if(command == "PUT")
+		{
+			commandFile >> numContents;
+			getline(commandFile, inputLine);
+			numberLine = new int[numContents -1];
+			stringstream ss;
+			for(int i = 0; i < numContents; i++)
+			{
+				ss << inputLine;
+				ss >> numberLine[i];
+			}
+
+			put(item[bucketNumber-1], bucketNumber, numContents, numberLine);
+
+			delete [] numberLine;
+
+		}
+		else if(command == "OUTPUT")
+		{
+			output(item[bucketNumber-1],bucketNumber);
+		}
+		else if(command == "EMPTY")
+		{
+			empty(item[bucketNumber-1],bucketNumber);
+		}
+	}
+
 }
 
 int main(int argc, char* argv[])
@@ -77,11 +172,20 @@ int main(int argc, char* argv[])
 	commandList = new string [numCommands];
 
 	assignBucketNumbers(buckets);
-
+	runCommands(iFile,buckets);
 	iFile.close();
+
+	for(int i = 0; i < numBuckets; i++)
+	{
+		if(buckets[i].contentSize != 0)
+		{
+			delete [] buckets[i].contents;
+		}
+	}
 
 	delete [] buckets;
 	delete [] commandList;
+
 
 	return 0;
 }
