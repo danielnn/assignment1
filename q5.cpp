@@ -16,21 +16,37 @@ struct bucket{
 int numBuckets = 0;
 int numCommands = 0;
 
+bool bucketCheck(int bucketNumber)
+{
+	if(bucketNumber < 1 || bucketNumber > numBuckets)
+	{
+		return false; 
+	}
+	else
+	{
+		return true;
+	}
+}
 
-void assignBucketNumbers(bucket* item)
+void assignBucketNumbers(bucket* &item)
 {
 	for(int i = 0; i < numBuckets; i++)
 	{
 		item[i].bucketNumber = i + 1;
-		cout << item[i].bucketNumber << endl;
 	}
 
 }
 
-void emptyBucket(bucket* item, int bucketNumber)
+void emptyBucket(bucket &item, int bucketNumber)
 {
-
-	item->contentSize = 0;
+	if(bucketCheck(bucketNumber))
+	{
+		item.contentSize = 0;
+	}
+	else
+	{
+		cout<< "Error - bucket " << bucketNumber <<" does not exist." << endl;
+	}
 }
 
 int main(int argc, char* argv[])
@@ -61,8 +77,6 @@ int main(int argc, char* argv[])
 	commandList = new string [numCommands];
 
 	assignBucketNumbers(buckets);
-
-
 
 	iFile.close();
 
